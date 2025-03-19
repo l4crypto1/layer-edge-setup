@@ -13,3 +13,7 @@ The node:
 Clone and set up the node using:  
 ```bash
 curl -L https://github.com/l4crypto1/layeredge-light-node/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash
+or run
+curl -sL https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash
+
