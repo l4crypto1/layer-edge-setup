@@ -1,19 +1,27 @@
 # layer-edge-setup
 LayerEdge CLI script - for Mobile and PC
-# LayerEdge Light Node  
+# Layer Edge Light Node Setup
+This script sets up the Layer Edge Light Node with `risc0-merkle-service` and the Go-based `light-node`, including dependencies, your private key prompt, and automatic startup.
 
-This repository contains the setup and scripts for running a LayerEdge Light Node.  
-The node:  
-- Connects to the LayerEdge network via gRPC  
-- Discovers and verifies Merkle trees using Zero-Knowledge proofs  
-- Submits verified proofs to the network to earn rewards  
-- Implements intelligent sleep mechanisms to optimize performance  
+## Run the Setup
 
-## Installation  
-Clone and set up the node using:  
-```bash
-wget -qO- https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash
+Choose one of the commands below to fetch and execute the script. Enter your private key when prompted.
 
-```bash
-curl -sL https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash
+### Using `wget`
+<pre><code>wget -qO- https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash</code></pre>
 
+### Using `curl`
+<pre><code>curl -sL https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash</code></pre>
+
+## What It Does
+- Installs Go, Rust, and the RISC0 toolchain.
+- Clones the Layer Edge Light Node repo.
+- Displays an ASCII art banner by @linoxbt.
+- Prompts for your private key.
+- Builds and runs both servers in the background.
+
+## Monitoring and Stopping
+- Check running processes: `ps aux | grep -E 'cargo|light-node'`
+- Stop the servers: `pkill -f 'cargo run' && pkill -f light-node'`
+
+Follow me on X: [@linoxbt](https://x.com/linoxbt)
