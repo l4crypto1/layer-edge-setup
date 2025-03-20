@@ -3,11 +3,27 @@
 # Function to check for errors and exit if any command fails
 set -e
 
+# Automatically stop any existing LayerEdge and Merkle screen sessions
+echo "Checking for and stopping any existing LayerEdge or Merkle sessions..."
+if screen -list | grep -q "layeredge"; then
+    screen -X -S layeredge quit
+    echo "Previous LayerEdge session terminated."
+else
+    echo "No previous LayerEdge session found."
+fi
+
+if screen -list | grep -q "merkle"; then
+    screen -X -S merkle quit
+    echo "Previous Merkle session terminated."
+else
+    echo "No previous Merkle session found."
+fi
+
 echo "Updating system and installing dependencies..."
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y build-essential git screen cargo
 
-# Start a new screen session
+# Start a new screen session for LayerEdge
 screen -S layeredge -dm bash -c "
     echo 'Installing Rust...'
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -41,7 +57,7 @@ screen -S layeredge -dm bash -c "
 === Layeredge CLI Testnet ====
 EOF
     
-    # Ask for private key
+    # Ask for private key (only user input required)
     echo 'Enter your private key:'
     read -s PRIVATE_KEY
     echo 'Private key saved!'
