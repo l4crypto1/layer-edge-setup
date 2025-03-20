@@ -58,6 +58,7 @@ fi
 git clone https://github.com/Layer-Edge/light-node.git
 cd light-node
 
+# Now that all installations are done, display the banner and prompt for private key
 # Display LINOXBT ASCII Art Banner
 cat << 'EOF'
 
@@ -72,12 +73,25 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Force private key input in an interactive shell for VPS compatibility
-echo "Please enter your private key below (input will be hidden):"
-/bin/bash -c "read -s PRIVATE_KEY; echo \$PRIVATE_KEY > /tmp/private_key"
-PRIVATE_KEY=$(cat /tmp/private_key)
-rm -f /tmp/private_key
-echo "Private key saved!"
+# Prompt for private key and validate it
+while true; do
+    echo "Please enter your Ethereum private key (64 hex characters, no '0x'):"
+    /bin/bash -c "read -s PRIVATE_KEY; echo \$PRIVATE_KEY > /tmp/private_key"
+    PRIVATE_KEY=$(cat /tmp/private_key)
+    rm -f /tmp/private_key
+
+    # Check if private key is provided and valid
+    if [ -z "$PRIVATE_KEY" ]; then
+        echo "Error: Private key cannot be empty. Please try again."
+    elif [ ${#PRIVATE_KEY} -ne 64 ]; then
+        echo "Error: Private key must be exactly 64 characters long. Yours is ${#PRIVATE_KEY} characters. Please try again."
+    elif ! echo "$PRIVATE_KEY" | grep -qE '^[0-9a-fA-F]{64}$'; then
+        echo "Error: Private key must be hexadecimal (0-9, a-f, A-F). Please try again."
+    else
+        echo "Private key saved!"
+        break  # Exit loop if valid
+    fi
+done
 
 echo "Setting up environment variables..."
 export GRPC_URL=34.31.74.109:9090
@@ -87,13 +101,8 @@ export API_REQUEST_TIMEOUT=100
 export POINTS_API=light-node.layeredge.io
 export PRIVATE_KEY=$PRIVATE_KEY
 
-# Speed up Go module downloads with a faster proxy and verbose output
 echo "Building and running the LayerEdge Light Node..."
-export GOPROXY=https://goproxy.io,direct
-timeout 300 /usr/local/go/bin/go build -v || {
-    echo "Go build timed out or failed. Check network or VPS resources."
-    exit 1
-}
+/usr/local/go/bin/go build
 ./light-node &
 
 echo "Starting the Merkle Service..."
