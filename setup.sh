@@ -34,8 +34,8 @@ source /root/.bashrc
 # Clean up any existing Go installation and caches
 echo "Cleaning up any existing Go installation..."
 sudo rm -rf /usr/local/go
-rm -rf $HOME/go  # Remove user Go directory if it exists
-rm -rf $HOME/.cache/go-build  # Clear Go build cache
+rm -rf $HOME/go
+rm -rf $HOME/.cache/go-build
 
 echo "Installing Go..."
 wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
@@ -72,12 +72,11 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Force private key input with stty to control terminal
+# Force private key input in an interactive shell for VPS compatibility
 echo "Please enter your private key below (input will be hidden):"
-stty -echo  # Turn off echoing
-read PRIVATE_KEY
-stty echo   # Turn echoing back on
-echo        # Add a newline after input
+/bin/bash -c "read -s PRIVATE_KEY; echo \$PRIVATE_KEY > /tmp/private_key"
+PRIVATE_KEY=$(cat /tmp/private_key)
+rm -f /tmp/private_key
 echo "Private key saved!"
 
 echo "Setting up environment variables..."
