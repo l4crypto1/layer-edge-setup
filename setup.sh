@@ -74,9 +74,7 @@ EOF
 
 # Force private key input in an interactive shell for VPS compatibility
 echo "Please enter your private key below (input will be hidden):"
-/bin/bash -c "read -s PRIVATE_KEY; echo \$PRIVATE_KEY > /tmp/private_key"
-PRIVATE_KEY=$(cat /tmp/private_key)
-rm -f /tmp/private_key
+read -s PRIVATE_KEY < /dev/tty
 echo "Private key saved!"
 
 echo "Setting up environment variables..."
