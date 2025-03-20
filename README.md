@@ -8,10 +8,10 @@ This script sets up the Layer Edge Light Node with `risc0-merkle-service` and th
 Choose one of the commands below to fetch and execute the script. Enter your private key when prompted.
 
 ### Using `wget`
-<pre><code>wget -qO- https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash</code></pre>
+<pre><code>wget -qO- https://raw.githubusercontent.com/linoxbt/layer-edge-setup/main/setup.sh | bash</code></pre>
 
 ### Using `curl`
-<pre><code>curl -sL https://raw.githubusercontent.com/l4crypto1/layer-edge-setup/main/setup.sh | bash</code></pre>
+<pre><code>curl -sL https://raw.githubusercontent.com/linoxbt/layer-edge-setup/main/setup.sh | bash</code></pre>
 
 ## What It Does
 - Installs Go, Rust, and the RISC0 toolchain.
