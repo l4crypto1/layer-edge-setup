@@ -38,6 +38,11 @@ echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
 source ~/.profile
 
 echo "Cloning LayerEdge Light Node repository..."
+# Check if light-node directory exists and remove it if it does
+if [ -d "light-node" ]; then
+    echo "Directory 'light-node' already exists. Removing it to re-clone..."
+    rm -rf light-node
+fi
 git clone https://github.com/Layer-Edge/light-node.git
 cd light-node
 
