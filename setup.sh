@@ -37,6 +37,9 @@ sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
 echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
 source ~/.profile
 
+# Ensure we're in the home directory before cloning
+cd ~
+
 echo "Cloning LayerEdge Light Node repository..."
 # Check if light-node directory exists and remove it if it does
 if [ -d "light-node" ]; then
