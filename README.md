@@ -13,13 +13,6 @@ Choose one of the commands below to fetch and execute the script. Enter your pri
 ### Using `curl`
 <pre><code>curl -sL https://raw.githubusercontent.com/linoxbt/layer-edge-setup/main/setup.sh | bash</code></pre>
 
-## What It Does
-- Installs Go, Rust, and the RISC0 toolchain.
-- Clones the Layer Edge Light Node repo.
-- Displays an ASCII art banner by @linoxbt.
-- Prompts for your private key.
-- Builds and runs both servers in the background.
-
 ## Monitoring and Stopping
 - Check running processes: `ps aux | grep -E 'cargo|light-node'`
 - Stop the servers: `pkill -f 'cargo run' && pkill -f light-node'`
