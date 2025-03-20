@@ -74,7 +74,9 @@ EOF
 
 # Force private key input in an interactive shell for VPS compatibility
 echo "Please enter your private key below (input will be hidden):"
-read -s PRIVATE_KEY < /dev/tty
+/bin/bash -c "read -s PRIVATE_KEY; echo \$PRIVATE_KEY > /tmp/private_key"
+PRIVATE_KEY=$(cat /tmp/private_key)
+rm -f /tmp/private_key
 echo "Private key saved!"
 
 echo "Setting up environment variables..."
@@ -85,8 +87,13 @@ export API_REQUEST_TIMEOUT=100
 export POINTS_API=light-node.layeredge.io
 export PRIVATE_KEY=$PRIVATE_KEY
 
+# Speed up Go module downloads with a faster proxy and verbose output
 echo "Building and running the LayerEdge Light Node..."
-/usr/local/go/bin/go build
+export GOPROXY=https://goproxy.io,direct
+timeout 300 /usr/local/go/bin/go build -v || {
+    echo "Go build timed out or failed. Check network or VPS resources."
+    exit 1
+}
 ./light-node &
 
 echo "Starting the Merkle Service..."
