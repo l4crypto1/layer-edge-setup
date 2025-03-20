@@ -1,23 +1,17 @@
 #!/bin/bash
 
-# Function to check for errors and exit if any command fails
 set -e
 
-# Stop any existing LayerEdge and Merkle screen sessions
-echo "Checking for and stopping any existing LayerEdge or Merkle sessions..."
-if screen -list | grep -q "layeredge"; then
-    screen -X -S layeredge quit
-    echo "Previous LayerEdge session terminated."
-else
-    echo "No previous LayerEdge session found."
-fi
-
-if screen -list | grep -q "merkle"; then
-    screen -X -S merkle quit
-    echo "Previous Merkle session terminated."
-else
-    echo "No previous Merkle session found."
-fi
+# Stop existing sessions
+echo "Checking for and stopping existing sessions..."
+for session in "layeredge" "merkle"; do
+    if screen -list | grep -q "$session"; then
+        screen -X -S "$session" quit
+        echo "Previous $session session terminated."
+    else
+        echo "No previous $session session found."
+    fi
+done
 
 echo "Updating system and installing dependencies..."
 sudo apt update && sudo apt upgrade -y
@@ -31,11 +25,9 @@ echo "Installing RISC Zero..."
 curl -L https://risczero.com/install | bash && rzup install
 source /root/.bashrc
 
-# Clean up any existing Go installation and caches
-echo "Cleaning up any existing Go installation..."
+echo "Cleaning up existing Go installation..."
 sudo rm -rf /usr/local/go
-rm -rf $HOME/go
-rm -rf $HOME/.cache/go-build
+rm -rf $HOME/go $HOME/.cache/go-build
 
 echo "Installing Go..."
 wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
@@ -43,22 +35,16 @@ sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
 echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
 source ~/.profile
 
-# Verify Go installation
 echo "Verifying Go version..."
 /usr/local/go/bin/go version
 
-# Ensure we're in the home directory before cloning
 cd ~
-
 echo "Cloning LayerEdge Light Node repository..."
-if [ -d "light-node" ]; then
-    echo "Directory 'light-node' already exists. Removing it to re-clone..."
-    rm -rf light-node
-fi
-git clone https://github.com/Layer-Edge/light-node.git
+[ -d "light-node" ] && rm -rf light-node
+git clone https://github.com/Layer-Edge/light-node.git || { echo "Git clone failed"; exit 1; }
 cd light-node
 
-# Display ASCII Art Banner
+# ASCII Art Banner
 cat << 'EOF'
 
     ██╗     ██╗███╗   ██╗ ██████╗ ██╗  ██╗██████╗ ████████╗
@@ -72,33 +58,23 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Prompt for private key and validate input
+# Private key input and validation
 while true; do
+    read -rsp "Enter your Ethereum private key (64 hex characters, no '0x'): " PRIVATE_KEY
     echo
-    read -rsp "Enter your Ethereum private key (hex characters, no '0x'): " PRIVATE_KEY
-    echo
-
-    # Prompt for private key and validate input
-echo
-read -rsp "Enter your Ethereum private key (64 hex characters, no '0x'): " PRIVATE_KEY
-echo  # Move to a new line after input
-
-# Remove whitespace (in case of accidental spaces)
-PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
-
-# Validation checks
-if [[ -z "$PRIVATE_KEY" ]]; then
-    echo "Error: Private key cannot be empty."
-    exit 1
-elif [[ ${#PRIVATE_KEY} -ne 64 ]]; then
-    echo "Error: Private key must be exactly 64 characters long."
-    exit 1
-elif ! [[ "$PRIVATE_KEY" =~ ^[0-9a-fA-F]{64}$ ]]; then
-    echo "Error: Private key must be hexadecimal (0-9, a-f, A-F)."
-    exit 1
-fi
-
-echo "Private key validated successfully."
+    PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
+    
+    if [[ -z "$PRIVATE_KEY" ]]; then
+        echo "Error: Private key cannot be empty."
+    elif [[ ${#PRIVATE_KEY} -ne 64 ]]; then
+        echo "Error: Private key must be exactly 64 characters long."
+    elif ! [[ "$PRIVATE_KEY" =~ ^[0-9a-fA-F]{64}$ ]]; then
+        echo "Error: Private key must be hexadecimal (0-9, a-f, A-F)."
+    else
+        echo "Private Key saved successfully."
+        break
+    fi
+done
 
 echo "Setting up environment variables..."
 export GRPC_URL=34.31.74.109:9090
@@ -108,10 +84,12 @@ export API_REQUEST_TIMEOUT=100
 export POINTS_API=light-node.layeredge.io
 export PRIVATE_KEY=$PRIVATE_KEY
 
-echo "Building and running the LayerEdge Light Node..."
+echo "Building and running LayerEdge Light Node..."
 /usr/local/go/bin/go build
-./light-node &
+screen -dmS layeredge ./light-node
 
-echo "Starting the Merkle Service..."
+echo "Starting Merkle Service..."
 cd risc0-merkle-service
-cargo build && cargo run
+cargo build && screen -dmS merkle cargo run
+
+echo "Services started in screen sessions. Use 'screen -r layeredge' or 'screen -r merkle' to view logs."
