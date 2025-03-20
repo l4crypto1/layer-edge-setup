@@ -31,15 +31,21 @@ echo "Installing RISC Zero..."
 curl -L https://risczero.com/install | bash && rzup install
 source /root/.bashrc
 
-# Clean up any existing Go installation to avoid version conflicts
+# Clean up any existing Go installation and caches
 echo "Cleaning up any existing Go installation..."
 sudo rm -rf /usr/local/go
+rm -rf $HOME/go  # Remove user Go directory if it exists
+rm -rf $HOME/.cache/go-build  # Clear Go build cache
 
 echo "Installing Go..."
 wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
 echo "export PATH=\$PATH:/usr/local/go/bin" >> ~/.profile
 source ~/.profile
+
+# Verify Go installation
+echo "Verifying Go version..."
+/usr/local/go/bin/go version
 
 # Ensure we're in the home directory before cloning
 cd ~
@@ -66,9 +72,12 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Force private key input with a clear prompt
+# Force private key input with stty to control terminal
 echo "Please enter your private key below (input will be hidden):"
-read -s -p "" PRIVATE_KEY
+stty -echo  # Turn off echoing
+read PRIVATE_KEY
+stty echo   # Turn echoing back on
+echo        # Add a newline after input
 echo "Private key saved!"
 
 echo "Setting up environment variables..."
@@ -80,7 +89,7 @@ export POINTS_API=light-node.layeredge.io
 export PRIVATE_KEY=$PRIVATE_KEY
 
 echo "Building and running the LayerEdge Light Node..."
-go build
+/usr/local/go/bin/go build
 ./light-node &
 
 echo "Starting the Merkle Service..."
