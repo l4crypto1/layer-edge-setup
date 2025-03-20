@@ -78,21 +78,27 @@ while true; do
     read -rsp "Enter your Ethereum private key (hex characters, no '0x'): " PRIVATE_KEY
     echo
 
-    # Trim whitespace (in case of accidental spaces)
-    PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
+    # Prompt for private key and validate input
+echo
+read -rsp "Enter your Ethereum private key (64 hex characters, no '0x'): " PRIVATE_KEY
+echo  # Move to a new line after input
 
-    # Debugging Output: Show length of private key entered
-    echo "Debug: Private key length entered: ${#PRIVATE_KEY}"
+# Remove whitespace (in case of accidental spaces)
+PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
 
-    if [[ -z "$PRIVATE_KEY" ]]; then
-        echo "Error: Private key cannot be empty."
-    elif ! [[ "$PRIVATE_KEY" =~ ^[0-9a-fA-F]+$ ]]; then
-        echo "Error: Private key must be hexadecimal (0-9, a-f, A-F)."
-    else
-        echo "Private key validated and stored securely."
-        break
-    fi
-done
+# Validation checks
+if [[ -z "$PRIVATE_KEY" ]]; then
+    echo "Error: Private key cannot be empty."
+    exit 1
+elif [[ ${#PRIVATE_KEY} -ne 64 ]]; then
+    echo "Error: Private key must be exactly 64 characters long."
+    exit 1
+elif ! [[ "$PRIVATE_KEY" =~ ^[0-9a-fA-F]{64}$ ]]; then
+    echo "Error: Private key must be hexadecimal (0-9, a-f, A-F)."
+    exit 1
+fi
+
+echo "Private key validated successfully."
 
 echo "Setting up environment variables..."
 export GRPC_URL=34.31.74.109:9090
