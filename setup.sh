@@ -3,7 +3,7 @@
 # Function to check for errors and exit if any command fails
 set -e
 
-# Stop any existing LayerEdge and Merkle screen sessions (if they exist from previous runs)
+# Stop any existing LayerEdge and Merkle screen sessions
 echo "Checking for and stopping any existing LayerEdge or Merkle sessions..."
 if screen -list | grep -q "layeredge"; then
     screen -X -S layeredge quit
@@ -31,6 +31,10 @@ echo "Installing RISC Zero..."
 curl -L https://risczero.com/install | bash && rzup install
 source /root/.bashrc
 
+# Clean up any existing Go installation to avoid version conflicts
+echo "Cleaning up any existing Go installation..."
+sudo rm -rf /usr/local/go
+
 echo "Installing Go..."
 wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
 sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
@@ -41,7 +45,6 @@ source ~/.profile
 cd ~
 
 echo "Cloning LayerEdge Light Node repository..."
-# Check if light-node directory exists and remove it if it does
 if [ -d "light-node" ]; then
     echo "Directory 'light-node' already exists. Removing it to re-clone..."
     rm -rf light-node
@@ -63,9 +66,9 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Ask for private key
-echo "Enter your private key:"
-read -s PRIVATE_KEY
+# Force private key input with a clear prompt
+echo "Please enter your private key below (input will be hidden):"
+read -s -p "" PRIVATE_KEY
 echo "Private key saved!"
 
 echo "Setting up environment variables..."
