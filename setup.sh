@@ -58,38 +58,24 @@ cat << 'EOF'
 === Layeredge CLI Testnet ====
 EOF
 
-# Private key input and validation
-while true; do
-    read -rsp "Enter your Ethereum private key (64 hex characters, no '0x'): " PRIVATE_KEY
-    echo
-    PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
-    
-    if [[ -z "$PRIVATE_KEY" ]]; then
-        echo "Error: Private key cannot be empty."
-    elif [[ ${#PRIVATE_KEY} -ne 64 ]]; then
-        echo "Error: Private key must be exactly 64 characters long."
-    elif ! [[ "$PRIVATE_KEY" =~ ^[0-9a-fA-F]{64}$ ]]; then
-        echo "Error: Private key must be hexadecimal (0-9, a-f, A-F)."
-    else
-        echo "Private Key saved successfully."
-        break
-    fi
-done
+# Simplified private key input without validation
+echo "Please enter your Ethereum private key (64 hex characters, no '0x'):"
+read -s PRIVATE_KEY
+echo
+PRIVATE_KEY=$(echo -n "$PRIVATE_KEY" | tr -d '[:space:]')
+echo "Private Key saved successfully."
 
 echo "Setting up environment variables..."
-export GRPC_URL=34.31.74.109:9090
-export CONTRACT_ADDR=cosmos1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqt56709
-export ZK_PROVER_URL=http://127.0.0.1:3001
-export API_REQUEST_TIMEOUT=100
-export POINTS_API=light-node.layeredge.io
-export PRIVATE_KEY=$PRIVATE_KEY
+echo "export GRPC_URL=grpc.testnet.layeredge.io:9090" >> ~/.bashrc
+echo "export CONTRACT_ADDR=cosmos1ufs3tlq4umljk0qfe8k5ya0x6hpavn897u2cnf9k0en9jr7qarqqt56709" >> ~/.bashrc
+echo "export ZK_PROVER_URL=http://127.0.0.1:3001" >> ~/.bashrc
+echo "export API_REQUEST_TIMEOUT=100" >> ~/.bashrc
+echo "export POINTS_API=https://light-node.layeredge.io" >> ~/.bashrc
+echo "export PRIVATE_KEY=$PRIVATE_KEY" >> ~/.bashrc
+source ~/.bashrc
 
-echo "Building and running LayerEdge Light Node..."
+# Build the Light Node (without running it)
+echo "Building the LayerEdge Light Node..."
 /usr/local/go/bin/go build
-screen -dmS layeredge ./light-node
 
-echo "Starting Merkle Service..."
-cd risc0-merkle-service
-cargo build && screen -dmS merkle cargo run
-
-echo "Services started in screen sessions. Use 'screen -r layeredge' or 'screen -r merkle' to view logs."
+echo "Setup complete! See separate commands to make executable and start services."
