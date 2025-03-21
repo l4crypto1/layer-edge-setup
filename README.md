@@ -4,6 +4,7 @@
 ```bash
 wget -qO- https://raw.githubusercontent.com/linoxbt/layer-edge-setup/main/setup.sh | bash
 ```
+then run
 ```bash
 chmod +x ~/light-node/setup-light-node.sh
 ```
@@ -14,10 +15,12 @@ Step 2: Start the Merkle Service
 cd ~/light-node/risc0-merkle-service
 cargo build && cargo run
 ```
+then run
 ```bash
 bash
 chmod +x ~/light-node/start-merkle.sh
 ```
+then 
 ```bash
 ~/light-node/start-merkle.sh
 ```
