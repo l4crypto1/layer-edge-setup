@@ -17,7 +17,6 @@ cargo build && cargo run
 ```
 then run
 ```bash
-bash
 chmod +x ~/light-node/start-merkle.sh
 ```
 then 
